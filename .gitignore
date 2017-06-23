@@ -1,6 +1,12 @@
 ## Various settings
 xcuserdata
 
+## Build
+build/
+
+## Objects
+*.o
+
 ## Other
 .DS_Store
 *.swp
