@@ -11,23 +11,20 @@
 
 #include "gl_headers.hpp"
 
-namespace core {
+namespace hsu {
 
 class shader {
 public:
-    inline static core::shader& instance() {
-        static auto shader = core::shader();
+    inline static hsu::shader& instance() {
+        static auto shader = hsu::shader();
         return shader;
     }
+
     struct {
     friend class shader;
-    void enable_vertex() const {
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 12, nullptr, GL_DYNAMIC_DRAW);
+    void enable_aVertex() const {
+        glVertexAttribPointer(aVertex_, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
         glEnableVertexAttribArray(aVertex_);
-    }
-    void set_vertex(GLfloat* vertices) const {
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * 12, vertices);
     }
     void use() const {
         glUseProgram(program_);
@@ -39,6 +36,34 @@ public:
         GLuint program_;
         GLint aVertex_;
     } draw_rect;
+
+    struct {
+    friend class shader;
+    void enable_aVertex() const {
+        glVertexAttribPointer(aVertex_, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, (GLvoid*)0);
+        glEnableVertexAttribArray(aVertex_);
+    }
+    void enable_aTexCoord() const {
+        glVertexAttribPointer(aTexCoord_, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, (GLvoid*)(2 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(aTexCoord_);
+    }
+    void enable_vSample() const {
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(uSample_, 0);
+    }
+    void use() const {
+        glUseProgram(program_);
+    }
+    void unuse() const {
+        glUseProgram(0);
+    }
+    private:
+        GLuint program_;
+        GLint aVertex_;
+        GLint aTexCoord_;
+        GLint uSample_;
+    } draw_image;
+
 private:
     shader();
 };

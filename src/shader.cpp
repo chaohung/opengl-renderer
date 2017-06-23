@@ -53,14 +53,14 @@ GLuint create_program(std::string const& vertex_shader_source, std::string const
 
 } // end of namespace
 
-namespace core {
+namespace hsu {
 
 shader::shader() {
     {
         std::string vertext_shader_source =
         "#version 330 core\n"
         "\n"
-        "layout (location = 0) in vec2 aVertex;\n"
+        "in vec2 aVertex;\n"
         "void main() {\n"
         "   gl_Position = vec4(aVertex, 0.0, 1.0);\n"
         "}";
@@ -76,6 +76,36 @@ shader::shader() {
         auto program = ::create_program(vertext_shader_source, fragment_shader_source);
         draw_rect.program_ = program;
         draw_rect.aVertex_ = glGetAttribLocation(program, "aVertex");
+    }
+    {
+        std::string vertext_shader_source =
+        "#version 330 core\n"
+        "\n"
+        "in vec2 aVertex;\n"
+        "in vec2 aTexCoord;\n"
+        "out vec2 vTexCoord;\n"
+        "void main() {\n"
+        "   gl_Position = vec4(aVertex, 0.0, 1.0);\n"
+        "   vTexCoord = aTexCoord;\n"
+        "}";
+
+        std::string fragment_shader_source =
+        "#version 330 core\n"
+        "\n"
+        "in vec2 vTexCoord;\n"
+        "out vec4 color;\n"
+        "uniform sampler2D uTexture;\n"
+        "void main() {\n"
+        "   vec2 fTexCoord = vec2(vTexCoord.x, 1.0 - vTexCoord.y);\n"
+        "   color = texture(uTexture, fTexCoord);\n"
+//        "   color = mix(texture(uTexture, vTexCoord), vec4(1.0, 0.0, 0.0, 1.0), 0.8);\n"
+        "}";
+
+        auto program = ::create_program(vertext_shader_source, fragment_shader_source);
+        draw_image.program_ = program;
+        draw_image.aVertex_ = glGetAttribLocation(program, "aVertex");
+        draw_image.aTexCoord_ = glGetAttribLocation(program, "aTexCoord");
+        draw_image.uSample_ = glGetUniformLocation(program, "uSample");
     }
 }
 

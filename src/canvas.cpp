@@ -6,36 +6,28 @@
 //  Copyright © 2017年 hsu. All rights reserved.
 //
 
-#include "canvas.hpp"
 #include <stdexcept>
+
+#include "canvas.hpp"
+#include "context_manager.hpp"
 
 namespace hsu {
 
-canvas::canvas(std::string const& title, int x, int y, int width, int height) {
-    static std::shared_ptr<GLFWwindow> base_window = []() {
-        if (!glfwInit()) { throw std::runtime_error("glfwInit error."); }
+canvas::canvas(int x, int y, int width, int height, uint8_t* data) :
+    window_(), renderer_(), texture_(0) {
+    window_ = context_manager::instance().create_window();
 
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GL_FALSE);
-        auto window = std::shared_ptr<GLFWwindow>(
-        glfwCreateWindow(100, 100, "base", nullptr, nullptr),
-        [](GLFWwindow* window){ glfwDestroyWindow(window); });
-        return window;
-    }();
-
-    window_ = std::shared_ptr<GLFWwindow>(
-        glfwCreateWindow(width, height, title.c_str(), nullptr, base_window.get()),
-        [](GLFWwindow* window){ glfwDestroyWindow(window); });
-
-    if (!window_) {
-        glfwTerminate();
-        throw std::runtime_error("glfwInit error.");;
-    }
     glfwMakeContextCurrent(window_.get());
     renderer_ = std::make_shared<hsu::renderer>(width, height, window_);
+
+    glGenTextures(1, &texture_);
+    glBindTexture(GL_TEXTURE_2D, texture_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 canvas::~canvas() {}

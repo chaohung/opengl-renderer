@@ -19,16 +19,18 @@ namespace hsu {
 
 class canvas {
 public:
-    canvas(std::string const& title, int x, int y, int width, int height);
+    canvas(int x, int y, int width, int height, uint8_t* data = nullptr);
     virtual ~canvas();
 
     std::shared_ptr<GLFWwindow> window();
 
     inline std::shared_ptr<hsu::renderer const> renderer() { return renderer_; }
+    inline GLuint texture() const { return texture_; }
 
 private:
     std::shared_ptr<GLFWwindow> window_;
     std::shared_ptr<hsu::renderer> renderer_;
+    GLuint texture_;
 };
 
 } // end of namespace hsu
