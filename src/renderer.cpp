@@ -51,6 +51,7 @@ renderer::~renderer() {
 void renderer::draw_rect(int x, int y, int width ,int height) const {
     glfwMakeContextCurrent(window_.get());
     glBindVertexArray(draw_rect_vao_);
+    glBindBuffer(GL_ARRAY_BUFFER, draw_rect_vbo_);
 
     Eigen::Vector2f v0 = dst_affine_ * Eigen::Vector2f(x, y);
     Eigen::Vector2f v1 = dst_affine_ * Eigen::Vector2f(x + width, y);
@@ -68,8 +69,8 @@ void renderer::draw_rect(int x, int y, int width ,int height) const {
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * 12, vertices);
 
     auto& draw_rect = shader::instance().draw_rect;
-    draw_rect.enable_aVertex();
     draw_rect.use();
+    draw_rect.enable_aVertex();
     glDrawArrays(GL_TRIANGLES, 0, 6);
     draw_rect.unuse();
     glBindVertexArray(0);
@@ -79,6 +80,7 @@ void renderer::draw_image(int dst_x, int dst_y, int dst_width, int dst_height,
         int src_x, int src_y, int src_width, int src_height, GLuint texture_id) const {
     glfwMakeContextCurrent(window_.get());
     glBindVertexArray(draw_rect_vao_);
+    glBindBuffer(GL_ARRAY_BUFFER, draw_image_vbo_);
     glBindTexture(GL_TEXTURE_2D, texture_id);
 
     Eigen::Vector2f d0 = dst_affine_ * Eigen::Vector2f(dst_x, dst_y);
@@ -102,10 +104,10 @@ void renderer::draw_image(int dst_x, int dst_y, int dst_width, int dst_height,
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * 24, vertices);
 
     auto& draw_image = shader::instance().draw_image;
+    draw_image.use();
     draw_image.enable_aVertex();
     draw_image.enable_aTexCoord();
     draw_image.enable_vSample();
-    draw_image.use();
     glDrawArrays(GL_TRIANGLES, 0, 6);
     draw_image.unuse();
     glBindVertexArray(0);
