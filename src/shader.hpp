@@ -66,6 +66,7 @@ public:
 
 private:
     shader();
+    ~shader();
 };
 
 } // end of namespace hsu

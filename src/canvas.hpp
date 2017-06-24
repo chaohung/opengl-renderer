@@ -14,6 +14,7 @@
 
 #include "gl_headers.hpp"
 #include "renderer.hpp"
+#include "atlas_node.hpp"
 
 namespace hsu {
 
@@ -22,15 +23,15 @@ public:
     canvas(int x, int y, int width, int height, uint8_t* data = nullptr);
     virtual ~canvas();
 
-    std::shared_ptr<GLFWwindow> window();
+    inline std::shared_ptr<hsu::renderer const> renderer() const { return renderer_; }
+    inline std::shared_ptr<hsu::atlas_node const> image_node() const { return image_node_; }
 
-    inline std::shared_ptr<hsu::renderer const> renderer() { return renderer_; }
-    inline GLuint texture() const { return texture_; }
+    void read(int x, int y, int width, int height, void* data) const;
+    void write(int x, int y, int width, int height, void* data) const;
 
 private:
-    std::shared_ptr<GLFWwindow> window_;
+    std::shared_ptr<hsu::atlas_node const> image_node_;
     std::shared_ptr<hsu::renderer> renderer_;
-    GLuint texture_;
 };
 
 } // end of namespace hsu

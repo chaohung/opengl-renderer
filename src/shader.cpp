@@ -96,9 +96,7 @@ shader::shader() {
         "out vec4 color;\n"
         "uniform sampler2D uTexture;\n"
         "void main() {\n"
-        "   vec2 fTexCoord = vec2(vTexCoord.x, 1.0 - vTexCoord.y);\n"
-        "   color = texture(uTexture, fTexCoord);\n"
-//        "   color = mix(texture(uTexture, vTexCoord), vec4(1.0, 0.0, 0.0, 1.0), 0.8);\n"
+        "   color = texture(uTexture, vTexCoord);\n"
         "}";
 
         auto program = ::create_program(vertext_shader_source, fragment_shader_source);
@@ -107,6 +105,11 @@ shader::shader() {
         draw_image.aTexCoord_ = glGetAttribLocation(program, "aTexCoord");
         draw_image.uSample_ = glGetUniformLocation(program, "uSample");
     }
+}
+
+shader::~shader() {
+    glDeleteProgram(draw_rect.program_);
+    glDeleteProgram(draw_image.program_);
 }
 
 } // end of namespace hsu

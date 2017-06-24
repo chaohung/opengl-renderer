@@ -9,31 +9,27 @@
 #include <stdexcept>
 
 #include "canvas.hpp"
-#include "context_manager.hpp"
+#include "opengl_system.hpp"
 
 namespace hsu {
 
 canvas::canvas(int x, int y, int width, int height, uint8_t* data) :
-    window_(), renderer_(), texture_(0) {
-    window_ = context_manager::instance().create_window();
+    image_node_(nullptr), renderer_() {
+    auto buffer_manager = hsu::opengl_system::instance().buffer_manager();
+    image_node_ = buffer_manager->allocate_canvas(width, height, data);
+    renderer_ = std::make_shared<hsu::renderer>(width, height, image_node_);
+}
 
-    glfwMakeContextCurrent(window_.get());
-    renderer_ = std::make_shared<hsu::renderer>(width, height, window_);
+void canvas::read(int x, int y, int width, int height, void* data) const {
+    auto buffer_manager = hsu::opengl_system::instance().buffer_manager();
+    buffer_manager->download_texture(x + image_node_->rect().x, y + image_node_->rect().y, width, height, data);
+}
 
-    glGenTextures(1, &texture_);
-    glBindTexture(GL_TEXTURE_2D, texture_);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glBindTexture(GL_TEXTURE_2D, 0);
+void canvas::write(int x, int y, int width, int height, void* data) const {
+    auto buffer_manager = hsu::opengl_system::instance().buffer_manager();
+    buffer_manager->upload_texture(x + image_node_->rect().x, y + image_node_->rect().y, width, height, data);
 }
 
 canvas::~canvas() {}
-
-std::shared_ptr<GLFWwindow> canvas::window() {
-    return window_;
-}
 
 } // end of namespace hsu
