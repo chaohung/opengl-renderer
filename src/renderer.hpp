@@ -14,6 +14,8 @@
 
 #include "gl_headers.hpp"
 #include "atlas_node.hpp"
+#include "command_queue.hpp"
+#include "buffer_manager.hpp"
 
 namespace hsu {
 
@@ -21,7 +23,7 @@ class canvas;
 
 class renderer {
 public:
-    renderer(int canvas_width, int canvas_height, std::shared_ptr<atlas_node const> image_node);
+    renderer(std::shared_ptr<hsu::buffer_manager> buffer_manager, std::shared_ptr<atlas_node const> image_node);
     ~renderer();
 
     void draw_rect(int x, int y, int width, int height) const;
@@ -30,12 +32,12 @@ public:
     void draw_window(int dst_x, int dst_y, int dst_width, int dst_height,
         int src_x, int src_y, int src_width, int src_height, hsu::canvas const& canvas) const;
 
+    void flush(std::string const& command_type) const;
+
 private:
+    std::shared_ptr<hsu::buffer_manager> buffer_manager_;
     std::shared_ptr<hsu::atlas_node const> image_node_;
-    GLuint draw_rect_vao_;
-    GLuint draw_rect_vbo_;
-    GLuint draw_image_vao_;
-    GLuint draw_image_vbo_;
+    std::shared_ptr<hsu::command_queue> command_queue_;
 };
 
 } // end of namespace hsu

@@ -30,6 +30,7 @@ public:
     void write(int x, int y, int width, int height, void* data) const;
 
 private:
+    std::shared_ptr<buffer_manager> buffer_manager_;
     std::shared_ptr<hsu::atlas_node const> image_node_;
     std::shared_ptr<hsu::renderer> renderer_;
 };

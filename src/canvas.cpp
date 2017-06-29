@@ -14,20 +14,18 @@
 namespace hsu {
 
 canvas::canvas(int x, int y, int width, int height, uint8_t* data) :
-    image_node_(nullptr), renderer_() {
-    auto buffer_manager = hsu::opengl_system::instance().buffer_manager();
-    image_node_ = buffer_manager->allocate_canvas(width, height, data);
-    renderer_ = std::make_shared<hsu::renderer>(width, height, image_node_);
+    buffer_manager_(nullptr), image_node_(nullptr), renderer_() {
+    buffer_manager_ = hsu::opengl_system::instance().buffer_manager();
+    image_node_ = buffer_manager_->allocate_canvas(width, height, data);
+    renderer_ = std::make_shared<hsu::renderer>(buffer_manager_, image_node_);
 }
 
 void canvas::read(int x, int y, int width, int height, void* data) const {
-    auto buffer_manager = hsu::opengl_system::instance().buffer_manager();
-    buffer_manager->download_texture(x + image_node_->rect().x, y + image_node_->rect().y, width, height, data);
+    buffer_manager_->download_texture(x + image_node_->rect().x, y + image_node_->rect().y, width, height, data);
 }
 
 void canvas::write(int x, int y, int width, int height, void* data) const {
-    auto buffer_manager = hsu::opengl_system::instance().buffer_manager();
-    buffer_manager->upload_texture(x + image_node_->rect().x, y + image_node_->rect().y, width, height, data);
+    buffer_manager_->upload_texture(x + image_node_->rect().x, y + image_node_->rect().y, width, height, data);
 }
 
 canvas::~canvas() {}
