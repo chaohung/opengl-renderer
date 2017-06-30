@@ -24,9 +24,26 @@ void buffer_manager::create_atlas(int width, int height) {
     atlas_tree_ = hsu::atlas_node::create_atlas_root(width, height);
     texture_atlas_ = generate_texture_buffer(width, height, nullptr);
     frame_bufer_ = generate_frame_buffer(width, height, texture_atlas_);
+    glViewport(0, 0, width, height);
     setup_affine(width, height);
-    atlas_tree_->resize_handler = ([](int new_width, int new_height) {
+
+    atlas_tree_->resize_handler = ([&](int old_width, int old_height, int new_width, int new_height) {
         printf("atlas reisze to: %d %d\n", new_width, new_height);
+        GLuint new_texture_atlas = generate_texture_buffer(new_width, new_height, nullptr);
+        if (old_width > 0 && old_height > 0) {
+            bind_frame_buffer();
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, new_texture_atlas, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, texture_atlas_, 0);
+            glReadBuffer(GL_COLOR_ATTACHMENT1);
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glBlitFramebuffer(0, 0, old_width, old_height, 0, 0, old_width, old_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);
+            unbind_frame_buffer();
+        }
+        glViewport(0, 0, new_width, new_height);
+        glDeleteTextures(1, &texture_atlas_);
+        texture_atlas_ = new_texture_atlas;
+        setup_affine(new_width, new_height);
     });
 }
 
