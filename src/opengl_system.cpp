@@ -28,6 +28,7 @@ void opengl_system::setup_window(int width, int height, std::string const& title
     glfwMakeContextCurrent(window_.get());
     glfwSetKeyCallback(window_.get(), key_callback);
     glEnable(GL_BLEND);
+    glEnable(GL_SCISSOR_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 

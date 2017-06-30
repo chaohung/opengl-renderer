@@ -58,7 +58,9 @@ void command_queue::flush(std::string const& buffer_id) {
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * vertex_queue.size(), vertex_queue.data());
     };
     std::function<void()> draw_handler = [&]() {
+        glScissor(image_node_->rect().x, image_node_->rect().y, image_node_->rect().width, image_node_->rect().height);
         glDrawArrays(GL_TRIANGLES, 0, vertex_queue.size() / 2);
+        glScissor(0, 0, buffer_manager_->atlas_width(), buffer_manager_->atlas_height());
         glBindVertexArray(0);
     };
     if (buffer_id == "draw_rect") {

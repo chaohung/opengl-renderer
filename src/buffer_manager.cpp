@@ -26,6 +26,7 @@ void buffer_manager::create_atlas(int width, int height) {
     frame_bufer_ = generate_frame_buffer(width, height, texture_atlas_);
     glViewport(0, 0, width, height);
     setup_affine(width, height);
+    glScissor(0, 0, width, height);
 
     atlas_tree_->resize_handler = ([&](int old_width, int old_height, int new_width, int new_height) {
         printf("atlas reisze to: %d %d\n", new_width, new_height);
@@ -44,6 +45,7 @@ void buffer_manager::create_atlas(int width, int height) {
         glDeleteTextures(1, &texture_atlas_);
         texture_atlas_ = new_texture_atlas;
         setup_affine(new_width, new_height);
+        glScissor(0, 0, new_width, new_height);
     });
 }
 

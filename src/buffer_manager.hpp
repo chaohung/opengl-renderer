@@ -37,6 +37,9 @@ public:
     inline Eigen::Affine2f const& dst_affine() const { return dst_affine_; }
     inline Eigen::Affine2f const& src_affine() const { return src_affine_; }
 
+    inline int atlas_width() const { return atlas_tree_->rect().width; }
+    inline int atlas_height() const { return atlas_tree_->rect().height; }
+
 private:
     GLuint generate_texture_buffer(int width, int height, void* data) const;
     GLuint generate_frame_buffer(int width, int height, GLuint texture_buffer) const;
