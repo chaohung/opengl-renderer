@@ -39,6 +39,7 @@ void buffer_manager::create_atlas(int width, int height) {
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
             glBlitFramebuffer(0, 0, old_width, old_height, 0, 0, old_width, old_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);
+            glReadBuffer(GL_COLOR_ATTACHMENT0);
             unbind_frame_buffer();
         }
         glViewport(0, 0, new_width, new_height);
