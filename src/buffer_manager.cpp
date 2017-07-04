@@ -10,23 +10,15 @@
 
 namespace hsu {
 
-buffer_manager::buffer_manager() : atlas_tree_(nullptr),
-    texture_atlas_(0), frame_bufer_(0),
-    dst_affine_(), src_affine_() {}
-
-buffer_manager::~buffer_manager() {
-    glDeleteFramebuffers(1, &frame_bufer_);
-    glDeleteTextures(1, &texture_atlas_);
-}
-
-void buffer_manager::create_atlas(int width, int height) {
-    if (atlas_tree_) return;
-    atlas_tree_ = hsu::atlas_node::create_atlas_root(width, height);
-    texture_atlas_ = generate_texture_buffer(width, height, nullptr);
-    frame_bufer_ = generate_frame_buffer(width, height, texture_atlas_);
-    glViewport(0, 0, width, height);
-    setup_affine(width, height);
-    glScissor(0, 0, width, height);
+buffer_manager::buffer_manager(int atlas_width, int atlas_height) :
+    atlas_tree_(nullptr), texture_atlas_(0), frame_bufer_(0),
+    dst_affine_(), src_affine_() {
+    atlas_tree_ = hsu::atlas_node::create_atlas_root(atlas_width, atlas_height);
+    texture_atlas_ = generate_texture_buffer(atlas_width, atlas_height, nullptr);
+    frame_bufer_ = generate_frame_buffer(atlas_width, atlas_height, texture_atlas_);
+    glViewport(0, 0, atlas_width, atlas_height);
+    setup_affine(atlas_width, atlas_height);
+    glScissor(0, 0, atlas_width, atlas_height);
 
     atlas_tree_->resize_handler = ([&](int old_width, int old_height, int new_width, int new_height) {
         printf("atlas reisze to: %d %d\n", new_width, new_height);
@@ -48,6 +40,11 @@ void buffer_manager::create_atlas(int width, int height) {
         setup_affine(new_width, new_height);
         glScissor(0, 0, new_width, new_height);
     });
+}
+
+buffer_manager::~buffer_manager() {
+    glDeleteFramebuffers(1, &frame_bufer_);
+    glDeleteTextures(1, &texture_atlas_);
 }
 
 std::shared_ptr<hsu::atlas_node const> buffer_manager::allocate_canvas(int width, int height, void* data) const {

@@ -32,8 +32,8 @@ void opengl_system::setup_window(int width, int height, std::string const& title
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void opengl_system::setup_atlas(int width, int height) {
-    buffer_manager_->create_atlas(width, height);
+void opengl_system::setup_buffer_manager(int atlas_width, int atlas_height) {
+    buffer_manager_ = std::make_shared<hsu::buffer_manager>(atlas_width, atlas_height);
 }
 
 void opengl_system::run_window(std::function<void()> handler) const {
@@ -46,7 +46,6 @@ void opengl_system::run_window(std::function<void()> handler) const {
 
 opengl_system::opengl_system() : window_(nullptr), buffer_manager_(nullptr) {
     if (!glfwInit()) { throw std::runtime_error("glfwInit error."); }
-    buffer_manager_ = std::make_shared<hsu::buffer_manager>();
 }
 
 opengl_system::~opengl_system() {

@@ -20,13 +20,13 @@ class opengl_system {
 public:
     ~opengl_system();
 
-    inline static opengl_system const& instance() {
+    inline static opengl_system& instance() {
         static opengl_system instance;
         return instance;
     }
 
     void setup_window(int width, int height, std::string const& title);
-    void setup_atlas(int width, int height);
+    void setup_buffer_manager(int atlas_width, int atlas_height);
 
     void run_window(std::function<void()> handler) const;
 

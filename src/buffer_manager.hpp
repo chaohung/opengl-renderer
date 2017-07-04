@@ -18,10 +18,9 @@ namespace hsu {
 
 class buffer_manager {
 public:
-    buffer_manager();
+    buffer_manager(int atlas_width, int atlas_height);
     ~buffer_manager();
 
-    void create_atlas(int width, int height);
     std::shared_ptr<hsu::atlas_node const> allocate_canvas(int width, int height, void* data) const;
     void deallocatte(std::shared_ptr<hsu::atlas_node> image_node) const {};
 
