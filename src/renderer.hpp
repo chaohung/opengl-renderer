@@ -34,6 +34,9 @@ public:
 
     void flush(std::string const& command_type) const;
 
+public:
+    Eigen::Affine2f state_affine;
+
 private:
     std::shared_ptr<hsu::buffer_manager> buffer_manager_;
     std::shared_ptr<hsu::atlas_node const> image_node_;

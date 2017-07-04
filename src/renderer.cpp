@@ -21,6 +21,8 @@ renderer::renderer(std::shared_ptr<hsu::buffer_manager> buffer_manager, std::sha
     command_queue_->create_buffer("draw_image", 24 * 100);
     command_queue_->create_buffer("draw_window", 24 * 1);
 
+    state_affine = Eigen::Affine2f::Identity();
+
     GLenum err;
     if ((err = glGetError()) != GL_NO_ERROR) {
         printf("GL Error: %d\n", err);
@@ -32,8 +34,11 @@ renderer::~renderer() {}
 void renderer::draw_rect(int x, int y, int width ,int height) const {
     Eigen::Affine2f dst_affine = buffer_manager_->dst_affine();
 
-    x += image_node_->rect().x;
-    y += image_node_->rect().y;
+    dst_affine.translate(Eigen::Vector2f(image_node_->rect().x, image_node_->rect().y))
+        .translate(Eigen::Vector2f(x, y));
+    dst_affine *= state_affine.matrix();
+    dst_affine.translate(Eigen::Vector2f(-x, -y));
+
     Eigen::Vector2f v0 = dst_affine * Eigen::Vector2f(x, y);
     Eigen::Vector2f v1 = dst_affine * Eigen::Vector2f(x + width, y);
     Eigen::Vector2f v2 = dst_affine * Eigen::Vector2f(x + width, y + height);
@@ -55,15 +60,16 @@ void renderer::draw_image(int dst_x, int dst_y, int dst_width, int dst_height,
     Eigen::Affine2f dst_affine = buffer_manager_->dst_affine();
     Eigen::Affine2f src_affine = buffer_manager_->src_affine();
 
-    dst_x += image_node_->rect().x;
-    dst_y += image_node_->rect().y;
+    dst_affine.translate(Eigen::Vector2f(image_node_->rect().x, image_node_->rect().y))
+        .translate(Eigen::Vector2f(dst_x, dst_y));
+    dst_affine *= state_affine.matrix();
+    dst_affine.translate(Eigen::Vector2f(-dst_x, -dst_y));
     Eigen::Vector2f d0 = dst_affine * Eigen::Vector2f(dst_x, dst_y);
     Eigen::Vector2f d1 = dst_affine * Eigen::Vector2f(dst_x + dst_width, dst_y);
     Eigen::Vector2f d2 = dst_affine * Eigen::Vector2f(dst_x + dst_width, dst_y + dst_height);
     Eigen::Vector2f d3 = dst_affine * Eigen::Vector2f(dst_x, dst_y + dst_height);
 
-    src_x += canvas.image_node()->rect().x;
-    src_y += canvas.image_node()->rect().y;
+    src_affine.translate(Eigen::Vector2f(canvas.image_node()->rect().x, canvas.image_node()->rect().y));
     Eigen::Vector2f s0 = src_affine * Eigen::Vector2f(src_x, src_y);
     Eigen::Vector2f s1 = src_affine * Eigen::Vector2f(src_x + src_width, src_y);
     Eigen::Vector2f s2 = src_affine * Eigen::Vector2f(src_x + src_width, src_y + src_height);
@@ -85,15 +91,13 @@ void renderer::draw_window(int dst_x, int dst_y, int dst_width, int dst_height,
     Eigen::Affine2f dst_affine = buffer_manager_->dst_affine();
     Eigen::Affine2f src_affine = buffer_manager_->src_affine();
 
-    dst_x += image_node_->rect().x;
-    dst_y += image_node_->rect().y;
+    dst_affine.translate(Eigen::Vector2f(image_node_->rect().x, image_node_->rect().y));
     Eigen::Vector2f d0 = dst_affine * Eigen::Vector2f(dst_x, dst_y);
     Eigen::Vector2f d1 = dst_affine * Eigen::Vector2f(dst_x + dst_width, dst_y);
     Eigen::Vector2f d2 = dst_affine * Eigen::Vector2f(dst_x + dst_width, dst_y + dst_height);
     Eigen::Vector2f d3 = dst_affine * Eigen::Vector2f(dst_x, dst_y + dst_height);
 
-    src_x += canvas.image_node()->rect().x;
-    src_y += canvas.image_node()->rect().y;
+    src_affine.translate(Eigen::Vector2f(canvas.image_node()->rect().x, canvas.image_node()->rect().y));
     Eigen::Vector2f s0 = src_affine * Eigen::Vector2f(src_x, src_y);
     Eigen::Vector2f s1 = src_affine * Eigen::Vector2f(src_x + src_width, src_y);
     Eigen::Vector2f s2 = src_affine * Eigen::Vector2f(src_x + src_width, src_y + src_height);

@@ -23,7 +23,7 @@ public:
     canvas(int x, int y, int width, int height, uint8_t* data = nullptr);
     virtual ~canvas();
 
-    inline std::shared_ptr<hsu::renderer const> renderer() const { return renderer_; }
+    inline std::shared_ptr<hsu::renderer> renderer() const { return renderer_; }
     inline std::shared_ptr<hsu::atlas_node const> image_node() const { return image_node_; }
 
     void read(int x, int y, int width, int height, void* data) const;
