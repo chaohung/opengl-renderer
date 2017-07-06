@@ -36,11 +36,12 @@ void renderer::draw_rect(int x, int y, int width ,int height) const {
 
     dst_affine.translate(Eigen::Vector2f(image_node_->rect().x, image_node_->rect().y));
     dst_affine *= state_affine.matrix();
+    dst_affine.translate(Eigen::Vector2f(x, y)).scale(Eigen::Vector2f(width, height));
 
-    Eigen::Vector2f v0 = dst_affine * Eigen::Vector2f(x, y);
-    Eigen::Vector2f v1 = dst_affine * Eigen::Vector2f(x + width, y);
-    Eigen::Vector2f v2 = dst_affine * Eigen::Vector2f(x + width, y + height);
-    Eigen::Vector2f v3 = dst_affine * Eigen::Vector2f(x, y + height);
+    Eigen::Vector2f v0 = dst_affine * Eigen::Vector2f(0, 0);
+    Eigen::Vector2f v1 = dst_affine * Eigen::Vector2f(1, 0);
+    Eigen::Vector2f v2 = dst_affine * Eigen::Vector2f(1, 1);
+    Eigen::Vector2f v3 = dst_affine * Eigen::Vector2f(0, 1);
 
     std::vector<GLfloat> vertices = {
         v0.x(), v0.y(),
@@ -60,16 +61,20 @@ void renderer::draw_image(int dst_x, int dst_y, int dst_width, int dst_height,
 
     dst_affine.translate(Eigen::Vector2f(image_node_->rect().x, image_node_->rect().y));
     dst_affine *= state_affine.matrix();
-    Eigen::Vector2f d0 = dst_affine * Eigen::Vector2f(dst_x, dst_y);
-    Eigen::Vector2f d1 = dst_affine * Eigen::Vector2f(dst_x + dst_width, dst_y);
-    Eigen::Vector2f d2 = dst_affine * Eigen::Vector2f(dst_x + dst_width, dst_y + dst_height);
-    Eigen::Vector2f d3 = dst_affine * Eigen::Vector2f(dst_x, dst_y + dst_height);
+    dst_affine.translate(Eigen::Vector2f(dst_x, dst_y)).scale(Eigen::Vector2f(dst_width, dst_height));
 
-    src_affine.translate(Eigen::Vector2f(canvas.image_node()->rect().x, canvas.image_node()->rect().y));
-    Eigen::Vector2f s0 = src_affine * Eigen::Vector2f(src_x, src_y);
-    Eigen::Vector2f s1 = src_affine * Eigen::Vector2f(src_x + src_width, src_y);
-    Eigen::Vector2f s2 = src_affine * Eigen::Vector2f(src_x + src_width, src_y + src_height);
-    Eigen::Vector2f s3 = src_affine * Eigen::Vector2f(src_x, src_y + src_height);
+    Eigen::Vector2f d0 = dst_affine * Eigen::Vector2f(0, 0);
+    Eigen::Vector2f d1 = dst_affine * Eigen::Vector2f(1, 0);
+    Eigen::Vector2f d2 = dst_affine * Eigen::Vector2f(1, 1);
+    Eigen::Vector2f d3 = dst_affine * Eigen::Vector2f(0, 1);
+
+    src_affine.translate(Eigen::Vector2f(canvas.image_node()->rect().x, canvas.image_node()->rect().y))
+        .translate(Eigen::Vector2f(src_x, src_y)).scale(Eigen::Vector2f(src_width, src_height));
+
+    Eigen::Vector2f s0 = src_affine * Eigen::Vector2f(0, 0);
+    Eigen::Vector2f s1 = src_affine * Eigen::Vector2f(1, 0);
+    Eigen::Vector2f s2 = src_affine * Eigen::Vector2f(1, 1);
+    Eigen::Vector2f s3 = src_affine * Eigen::Vector2f(0, 1);
 
     std::vector<float> vertices = {
         d0.x(), d0.y(), s0.x(), s0.y(),
@@ -79,6 +84,7 @@ void renderer::draw_image(int dst_x, int dst_y, int dst_width, int dst_height,
         d2.x(), d2.y(), s2.x(), s2.y(),
         d3.x(), d3.y(), s3.x(), s3.y(),
     };
+
     command_queue_->insert_vertex("draw_image", vertices);
 }
 
@@ -88,16 +94,18 @@ void renderer::draw_window(int dst_x, int dst_y, int dst_width, int dst_height,
     Eigen::Affine2f src_affine = buffer_manager_->src_affine();
 
     dst_affine.translate(Eigen::Vector2f(image_node_->rect().x, image_node_->rect().y));
-    Eigen::Vector2f d0 = dst_affine * Eigen::Vector2f(dst_x, dst_y);
-    Eigen::Vector2f d1 = dst_affine * Eigen::Vector2f(dst_x + dst_width, dst_y);
-    Eigen::Vector2f d2 = dst_affine * Eigen::Vector2f(dst_x + dst_width, dst_y + dst_height);
-    Eigen::Vector2f d3 = dst_affine * Eigen::Vector2f(dst_x, dst_y + dst_height);
+    dst_affine.translate(Eigen::Vector2f(dst_x, dst_y)).scale(Eigen::Vector2f(dst_width, dst_height));
+    Eigen::Vector2f d0 = dst_affine * Eigen::Vector2f(0, 0);
+    Eigen::Vector2f d1 = dst_affine * Eigen::Vector2f(1, 0);
+    Eigen::Vector2f d2 = dst_affine * Eigen::Vector2f(1, 1);
+    Eigen::Vector2f d3 = dst_affine * Eigen::Vector2f(0, 1);
 
-    src_affine.translate(Eigen::Vector2f(canvas.image_node()->rect().x, canvas.image_node()->rect().y));
-    Eigen::Vector2f s0 = src_affine * Eigen::Vector2f(src_x, src_y);
-    Eigen::Vector2f s1 = src_affine * Eigen::Vector2f(src_x + src_width, src_y);
-    Eigen::Vector2f s2 = src_affine * Eigen::Vector2f(src_x + src_width, src_y + src_height);
-    Eigen::Vector2f s3 = src_affine * Eigen::Vector2f(src_x, src_y + src_height);
+    src_affine.translate(Eigen::Vector2f(canvas.image_node()->rect().x, canvas.image_node()->rect().y))
+        .translate(Eigen::Vector2f(src_x, src_y)).scale(Eigen::Vector2f(src_width, src_height));
+    Eigen::Vector2f s0 = src_affine * Eigen::Vector2f(0, 0);
+    Eigen::Vector2f s1 = src_affine * Eigen::Vector2f(1, 0);
+    Eigen::Vector2f s2 = src_affine * Eigen::Vector2f(1, 1);
+    Eigen::Vector2f s3 = src_affine * Eigen::Vector2f(0, 1);
 
     std::vector<GLfloat> vertices = {
         d0.x(), d0.y(), s0.x(), s3.y(),
