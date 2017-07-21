@@ -61,21 +61,26 @@ shader::shader() {
         "#version 330 core\n"
         "\n"
         "in vec2 aVertex;\n"
+        "in vec4 aColor;\n"
+        "out vec4 vColor;\n"
         "void main() {\n"
         "   gl_Position = vec4(aVertex, 0.0, 1.0);\n"
+        "   vColor = aColor;\n"
         "}";
 
         std::string fragment_shader_source =
         "#version 330 core\n"
         "\n"
+        "in vec4 vColor;\n"
         "out vec4 color;\n"
         "void main() {\n"
-        "   color = vec4(1.0, 0.0, 0.0, 1.0);"
+        "   color = vColor;"
         "}";
 
         auto program = ::create_program(vertext_shader_source, fragment_shader_source);
         draw_rect.program_ = program;
         draw_rect.aVertex_ = glGetAttribLocation(program, "aVertex");
+        draw_rect.aColor_ = glGetAttribLocation(program, "aColor");
     }
     {
         std::string vertext_shader_source =

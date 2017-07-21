@@ -23,8 +23,12 @@ public:
     struct {
     friend class shader;
     void enable_aVertex() const {
-        glVertexAttribPointer(aVertex_, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+        glVertexAttribPointer(aVertex_, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (GLvoid*)0);
         glEnableVertexAttribArray(aVertex_);
+    }
+    void enable_aColor() const {
+        glVertexAttribPointer(aColor_, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (GLvoid*)(2 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(aColor_);
     }
     void use() const {
         glUseProgram(program_);
@@ -35,6 +39,7 @@ public:
     private:
         GLuint program_;
         GLint aVertex_;
+        GLint aColor_;
     } draw_rect;
 
     struct {

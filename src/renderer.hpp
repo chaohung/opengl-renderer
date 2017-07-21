@@ -11,6 +11,7 @@
 
 #include <Eigen/Geometry>
 #include <memory>
+#include <array>
 
 #include "gl_headers.hpp"
 #include "atlas_node.hpp"
@@ -26,7 +27,7 @@ public:
     renderer(std::shared_ptr<hsu::buffer_manager> buffer_manager, std::shared_ptr<atlas_node const> image_node);
     ~renderer();
 
-    void draw_rect(int x, int y, int width, int height) const;
+    void draw_rect(int x, int y, int width, int height, std::array<float, 4> const& color) const;
     void draw_image(int dst_x, int dst_y, int dst_width, int dst_height,
         int src_x, int src_y, int src_width, int src_height, hsu::canvas const& canvas) const;
     void draw_window(int dst_x, int dst_y, int dst_width, int dst_height,

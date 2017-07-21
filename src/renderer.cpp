@@ -31,7 +31,7 @@ renderer::renderer(std::shared_ptr<hsu::buffer_manager> buffer_manager, std::sha
 
 renderer::~renderer() {}
 
-void renderer::draw_rect(int x, int y, int width ,int height) const {
+void renderer::draw_rect(int x, int y, int width ,int height, std::array<float, 4> const& color) const {
     Eigen::Affine2f dst_affine = buffer_manager_->dst_affine();
 
     dst_affine.translate(Eigen::Vector2f(image_node_->rect().x, image_node_->rect().y));
@@ -44,12 +44,12 @@ void renderer::draw_rect(int x, int y, int width ,int height) const {
     Eigen::Vector2f v3 = dst_affine * Eigen::Vector2f(0, 1);
 
     std::vector<GLfloat> vertices = {
-        v0.x(), v0.y(),
-        v1.x(), v1.y(),
-        v2.x(), v2.y(),
-        v0.x(), v0.y(),
-        v2.x(), v2.y(),
-        v3.x(), v3.y(),
+        v0.x(), v0.y(), color[0], color[1], color[2], color[3],
+        v1.x(), v1.y(), color[0], color[1], color[2], color[3],
+        v2.x(), v2.y(), color[0], color[1], color[2], color[3],
+        v0.x(), v0.y(), color[0], color[1], color[2], color[3],
+        v2.x(), v2.y(), color[0], color[1], color[2], color[3],
+        v3.x(), v3.y(), color[0], color[1], color[2], color[3],
     };
     command_queue_->insert_vertex("draw_rect", vertices);
 }

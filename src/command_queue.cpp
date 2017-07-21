@@ -69,6 +69,7 @@ void command_queue::flush(std::string const& buffer_id) {
         auto& draw_rect = shader::instance().draw_rect;
         draw_rect.use();
         draw_rect.enable_aVertex();
+        draw_rect.enable_aColor();
         draw_handler();
         draw_rect.unuse();
         buffer_manager_->unbind_frame_buffer();
