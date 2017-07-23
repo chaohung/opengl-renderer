@@ -28,7 +28,7 @@ public:
 
     void create_buffer(std::string const& buffer_id, int vertex_num);
     void insert_vertex(std::string const& buffer_id, std::vector<GLfloat> vertexs);
-    void flush(std::string const& buffer_id);
+    void flush();
 
 private:
     std::shared_ptr<hsu::buffer_manager> buffer_manager_;
@@ -36,6 +36,7 @@ private:
     std::unordered_map<std::string,GLuint> vao_map_;
     std::unordered_map<std::string,GLuint> vbo_map_;
     std::unordered_map<std::string,std::vector<GLfloat> > vertex_queue_map_;
+    std::string last_buffer_id;
 };
 
 } // end of namespace hsu

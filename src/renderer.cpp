@@ -118,8 +118,8 @@ void renderer::draw_window(int dst_x, int dst_y, int dst_width, int dst_height,
     command_queue_->insert_vertex("draw_window", vertices);
 }
 
-void renderer::flush(std::string const& command_type) const {
-    command_queue_->flush(command_type);
+void renderer::flush() const {
+    command_queue_->flush();
 }
 
 } // end of namespace hsu

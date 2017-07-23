@@ -14,7 +14,8 @@
 namespace hsu {
 
 command_queue::command_queue(std::shared_ptr<hsu::buffer_manager> buffer_manager, std::shared_ptr<hsu::atlas_node const> image_node) :
-    buffer_manager_(buffer_manager), image_node_(image_node), vao_map_(), vbo_map_(), vertex_queue_map_() {}
+    buffer_manager_(buffer_manager), image_node_(image_node), vao_map_(), vbo_map_(), vertex_queue_map_(),
+    last_buffer_id() {}
 
 command_queue::~command_queue() {
     std::for_each(vao_map_.begin(), vao_map_.end(), [](std::pair<std::string,GLuint> element) {
@@ -42,16 +43,21 @@ void command_queue::create_buffer(std::string const& buffer_id, int vertex_num) 
 }
 
 void command_queue::insert_vertex(std::string const& buffer_id, std::vector<GLfloat> vertexs) {
+    if (last_buffer_id != buffer_id) flush();
+    last_buffer_id = buffer_id;
+
     auto& vertex_queue = vertex_queue_map_[buffer_id];
     auto reserve_space = vertex_queue.capacity() - vertex_queue.size();
-    if (reserve_space < vertexs.size()) flush(buffer_id);
+    if (reserve_space < vertexs.size()) flush();
     vertex_queue.insert(vertex_queue.end(), vertexs.begin(), vertexs.end());
 }
 
-void command_queue::flush(std::string const& buffer_id) {
-    auto vao = vao_map_[buffer_id];
-    auto vbo = vbo_map_[buffer_id];
-    auto& vertex_queue = vertex_queue_map_[buffer_id];
+void command_queue::flush() {
+    auto& vertex_queue = vertex_queue_map_[last_buffer_id];
+    if (vertex_queue.size() == 0) return;
+
+    auto vao = vao_map_[last_buffer_id];
+    auto vbo = vbo_map_[last_buffer_id];
     std::function<void()> input_handler = [&]() {
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -63,7 +69,7 @@ void command_queue::flush(std::string const& buffer_id) {
         glScissor(0, 0, buffer_manager_->atlas_width(), buffer_manager_->atlas_height());
         glBindVertexArray(0);
     };
-    if (buffer_id == "draw_rect") {
+    if (last_buffer_id == "draw_rect") {
         buffer_manager_->bind_frame_buffer();
         input_handler();
         auto& draw_rect = shader::instance().draw_rect;
@@ -73,7 +79,7 @@ void command_queue::flush(std::string const& buffer_id) {
         draw_handler();
         draw_rect.unuse();
         buffer_manager_->unbind_frame_buffer();
-    } else if (buffer_id == "draw_image") {
+    } else if (last_buffer_id == "draw_image") {
         buffer_manager_->bind_frame_buffer();
         buffer_manager_->bind_texture_buffer();
         input_handler();
@@ -86,7 +92,7 @@ void command_queue::flush(std::string const& buffer_id) {
         draw_image.unuse();
         buffer_manager_->unbind_texture_buffer();
         buffer_manager_->unbind_frame_buffer();
-    } else if (buffer_id == "draw_window") {
+    } else if (last_buffer_id == "draw_window") {
         buffer_manager_->bind_texture_buffer();
         input_handler();
         auto& draw_image = shader::instance().draw_image;

@@ -33,7 +33,7 @@ public:
     void draw_window(int dst_x, int dst_y, int dst_width, int dst_height,
         int src_x, int src_y, int src_width, int src_height, hsu::canvas const& canvas) const;
 
-    void flush(std::string const& command_type) const;
+    void flush() const;
 
 public:
     Eigen::Affine2f state_affine;
