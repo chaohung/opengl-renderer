@@ -9,7 +9,7 @@
 #ifndef buffer_manager_hpp
 #define buffer_manager_hpp
 
-#include <Eigen/Geometry>
+#include <glm/glm.hpp>
 
 #include "atlas_node.hpp"
 #include "gl_headers.hpp"
@@ -33,8 +33,8 @@ public:
     void bind_frame_buffer() const;
     void unbind_frame_buffer() const;
 
-    inline Eigen::Affine2f const& dst_affine() const { return dst_affine_; }
-    inline Eigen::Affine2f const& src_affine() const { return src_affine_; }
+    inline glm::mat4 const& dst_affine() const { return dst_affine_; }
+    inline glm::mat4 const& src_affine() const { return src_affine_; }
 
     inline int atlas_width() const { return atlas_tree_->rect().width; }
     inline int atlas_height() const { return atlas_tree_->rect().height; }
@@ -49,8 +49,9 @@ private:
     std::shared_ptr<hsu::atlas_node> atlas_tree_;
     GLuint texture_atlas_;
     GLuint frame_bufer_;
-    Eigen::Affine2f dst_affine_;
-    Eigen::Affine2f src_affine_;
+
+    glm::mat4 dst_affine_;
+    glm::mat4 src_affine_;
 };
 
 } // end of namespace hsu

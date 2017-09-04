@@ -9,14 +9,15 @@
 #ifndef renderer_hpp
 #define renderer_hpp
 
-#include <Eigen/Geometry>
-#include <memory>
 #include <array>
+#include <memory>
 
-#include "gl_headers.hpp"
+#include <glm/glm.hpp>
+
 #include "atlas_node.hpp"
-#include "command_queue.hpp"
 #include "buffer_manager.hpp"
+#include "command_queue.hpp"
+#include "gl_headers.hpp"
 
 namespace hsu {
 
@@ -36,7 +37,7 @@ public:
     void flush() const;
 
 public:
-    Eigen::Affine2f state_affine;
+    glm::mat4 state_affine;
 
 private:
     std::shared_ptr<hsu::buffer_manager> buffer_manager_;

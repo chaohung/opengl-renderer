@@ -8,6 +8,8 @@
 
 #include "buffer_manager.hpp"
 
+#include <glm/ext.hpp>
+
 namespace hsu {
 
 buffer_manager::buffer_manager(int atlas_width, int atlas_height) :
@@ -109,11 +111,11 @@ void buffer_manager::unbind_frame_buffer() const {
 }
 
 void buffer_manager::setup_affine(int width, int height) {
-    dst_affine_ = Eigen::Affine2f::Identity();
-    dst_affine_.translate(Eigen::Vector2f(-1.0, -1.0))
-        .scale(Eigen::Vector2f(2.0 / width, 2.0 / height));
-    src_affine_ = Eigen::Affine2f::Identity();
-    src_affine_.scale(Eigen::Vector2f(1.0 / width, 1.0 / height));
+    dst_affine_ = glm::mat4();
+    dst_affine_ = glm::translate(dst_affine_, glm::vec3(-1.0, -1.0, 0.0));
+    dst_affine_ = glm::scale(dst_affine_, glm::vec3(2.0 / width, 2.0 / height, 1));
+    src_affine_ = glm::mat4();
+    src_affine_ = glm::scale(src_affine_, glm::vec3(1.0 /width, 1.0 / height, 1));
 }
 
 } // end of namespace hsu
