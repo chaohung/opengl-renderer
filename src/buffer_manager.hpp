@@ -48,7 +48,7 @@ private:
 private:
     std::shared_ptr<hsu::atlas_node> atlas_tree_;
     GLuint texture_atlas_;
-    GLuint frame_bufer_;
+    GLuint frame_buffer_;
 
     glm::mat4 dst_affine_;
     glm::mat4 src_affine_;

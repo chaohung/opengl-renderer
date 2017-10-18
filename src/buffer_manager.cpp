@@ -13,11 +13,11 @@
 namespace hsu {
 
 buffer_manager::buffer_manager(int atlas_width, int atlas_height) :
-    atlas_tree_(nullptr), texture_atlas_(0), frame_bufer_(0),
+    atlas_tree_(nullptr), texture_atlas_(0), frame_buffer_(0),
     dst_affine_(), src_affine_() {
     atlas_tree_ = hsu::atlas_node::create_atlas_root(atlas_width, atlas_height);
     texture_atlas_ = generate_texture_buffer(atlas_width, atlas_height, nullptr);
-    frame_bufer_ = generate_frame_buffer(atlas_width, atlas_height, texture_atlas_);
+    frame_buffer_ = generate_frame_buffer(atlas_width, atlas_height, texture_atlas_);
     glViewport(0, 0, atlas_width, atlas_height);
     setup_affine(atlas_width, atlas_height);
     glScissor(0, 0, atlas_width, atlas_height);
@@ -45,7 +45,7 @@ buffer_manager::buffer_manager(int atlas_width, int atlas_height) :
 }
 
 buffer_manager::~buffer_manager() {
-    glDeleteFramebuffers(1, &frame_bufer_);
+    glDeleteFramebuffers(1, &frame_buffer_);
     glDeleteTextures(1, &texture_atlas_);
 }
 
@@ -103,7 +103,7 @@ void buffer_manager::unbind_texture_buffer() const {
 }
 
 void buffer_manager::bind_frame_buffer() const {
-    glBindFramebuffer(GL_FRAMEBUFFER, frame_bufer_);
+    glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
 }
 
 void buffer_manager::unbind_frame_buffer() const {
