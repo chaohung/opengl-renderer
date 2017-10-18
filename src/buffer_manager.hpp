@@ -41,13 +41,15 @@ public:
 
 private:
     GLuint generate_texture_buffer(int width, int height, void* data) const;
-    GLuint generate_frame_buffer(int width, int height, GLuint texture_buffer) const;
+    GLuint generate_render_buffer(int width, int height) const;
+    GLuint generate_frame_buffer(int width, int height, GLuint texture_buffer, GLuint render_buffer) const;
 
     void setup_affine(int width, int height);
 
 private:
     std::shared_ptr<hsu::atlas_node> atlas_tree_;
     GLuint texture_atlas_;
+    GLuint render_buffer_;
     GLuint frame_buffer_;
 
     glm::mat4 dst_affine_;

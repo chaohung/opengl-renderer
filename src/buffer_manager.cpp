@@ -13,11 +13,11 @@
 namespace hsu {
 
 buffer_manager::buffer_manager(int atlas_width, int atlas_height) :
-    atlas_tree_(nullptr), texture_atlas_(0), frame_buffer_(0),
-    dst_affine_(), src_affine_() {
+    atlas_tree_(nullptr), texture_atlas_(0), render_buffer_(0), frame_buffer_(0), dst_affine_(), src_affine_() {
     atlas_tree_ = hsu::atlas_node::create_atlas_root(atlas_width, atlas_height);
     texture_atlas_ = generate_texture_buffer(atlas_width, atlas_height, nullptr);
-    frame_buffer_ = generate_frame_buffer(atlas_width, atlas_height, texture_atlas_);
+    render_buffer_ = generate_render_buffer(atlas_width, atlas_height);
+    frame_buffer_ = generate_frame_buffer(atlas_width, atlas_height, texture_atlas_, 0);
     glViewport(0, 0, atlas_width, atlas_height);
     setup_affine(atlas_width, atlas_height);
     glScissor(0, 0, atlas_width, atlas_height);
@@ -25,6 +25,7 @@ buffer_manager::buffer_manager(int atlas_width, int atlas_height) :
     atlas_tree_->resize_handler = ([&](int old_width, int old_height, int new_width, int new_height) {
         printf("atlas reisze to: %d %d\n", new_width, new_height);
         GLuint new_texture_atlas = generate_texture_buffer(new_width, new_height, nullptr);
+        GLuint new_render_buffer = generate_render_buffer(new_width, new_height);
         if (old_width > 0 && old_height > 0) {
             bind_frame_buffer();
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, new_texture_atlas, 0);
@@ -34,11 +35,14 @@ buffer_manager::buffer_manager(int atlas_width, int atlas_height) :
             glBlitFramebuffer(0, 0, old_width, old_height, 0, 0, old_width, old_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);
             glReadBuffer(GL_COLOR_ATTACHMENT0);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, new_render_buffer);
             unbind_frame_buffer();
         }
         glViewport(0, 0, new_width, new_height);
         glDeleteTextures(1, &texture_atlas_);
         texture_atlas_ = new_texture_atlas;
+        glDeleteRenderbuffers(1, &render_buffer_);
+        render_buffer_ = new_render_buffer;
         setup_affine(new_width, new_height);
         glScissor(0, 0, new_width, new_height);
     });
@@ -47,6 +51,7 @@ buffer_manager::buffer_manager(int atlas_width, int atlas_height) :
 buffer_manager::~buffer_manager() {
     glDeleteFramebuffers(1, &frame_buffer_);
     glDeleteTextures(1, &texture_atlas_);
+    glDeleteRenderbuffers(1, &render_buffer_);
 }
 
 std::shared_ptr<hsu::atlas_node const> buffer_manager::allocate_canvas(int width, int height, void* data) const {
@@ -84,11 +89,21 @@ GLuint buffer_manager::generate_texture_buffer(int width, int height, void* data
     return texture_buffer;
 }
 
-GLuint buffer_manager::generate_frame_buffer(int width, int height, GLuint texture_buffer) const {
+GLuint buffer_manager::generate_render_buffer(int width, int height) const {
+    GLuint render_buffer;
+    glGenRenderbuffers(1, &render_buffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, render_buffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    return render_buffer;
+}
+
+GLuint buffer_manager::generate_frame_buffer(int width, int height, GLuint texture_buffer, GLuint render_buffer) const {
     GLuint frame_buffer;
     glGenFramebuffers(1, &frame_buffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_buffer, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, render_buffer);
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return frame_buffer;
