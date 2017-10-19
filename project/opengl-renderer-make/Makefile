@@ -1,18 +1,20 @@
 PROGRAM = main
 
-SRC_DIR = ../..
+SRC_DIR = ../../src
 
 OBJ_DIR = ./build/objs
 
 TARGET = ./build/$(PROGRAM)
 
-SRCS = $(wildcard $(SRC_DIR)/src/*.cpp) $(wildcard $(SRC_DIR)/atlas-tree/src/*.cpp) $(wildcard ./*.cpp)
+SRCS = $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/../atlas-tree/src/*.cpp)
 
 OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(notdir $(SRCS)))
 
+DEPS = $(OBJS:.o=.d)
+
 INCLUDE_DIR =\
--I$(SRC_DIR)/atlas-tree/src\
--I$(SRC_DIR)/src\
+-I$(SRC_DIR)/../atlas-tree/src\
+-I$(SRC_DIR)\
 -I/usr/local/include\
 -I/usr/local/include/eigen3\
 
@@ -27,19 +29,18 @@ CXX = g++
 
 all : $(TARGET)
 
-$(TARGET) : $(OBJ_DIR) $(OBJS)
-	$(CXX) $(LIB_DIR) $(OBJS) -o $@ $(LDFLAGS)
+-include $(DEPS)
 
-$(OBJ_DIR)/%.o : $(SRC_DIR)/atlas-tree/src/%.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIR) -c $< -o $@
+$(TARGET) : $(OBJ_DIR) $(OBJS) ./main.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIR) -o $@ $(LDFLAGS) $(LIB_DIR) $(OBJS) ./main.cpp
 
-$(OBJ_DIR)/%.o : $(SRC_DIR)/src/%.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIR) -c $< -o $@
+$(OBJ_DIR)/%.o : $(SRC_DIR)/../atlas-tree/src/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIR) -c -MMD $< -o $@
 
-$(OBJ_DIR)/%.o : ./%.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIR) -c $< -o $@
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIR) -c -MMD $< -o $@
 
-$(OBJ_DIR):
+$(OBJ_DIR) :
 	mkdir -p $(OBJ_DIR)
 
 clean:
